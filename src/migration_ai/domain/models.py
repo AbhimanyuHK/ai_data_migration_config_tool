@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from .enums import ApprovalStatus, ConstraintType, MappingKind, MigrationStatus, RiskLevel
+from .enums import ApprovalStatus, ConstraintType, LoadStrategy, MappingKind, MigrationStatus, RiskLevel
 
 
 class DomainModel(BaseModel):
@@ -117,8 +117,6 @@ class ColumnMapping(DomainModel):
             raise ValueError(f"{self.kind} mapping requires at least one source column")
         if self.kind == MappingKind.TRANSFORMED and self.transformation is None:
             raise ValueError("transformed mapping requires a transformation rule")
-        if self.kind == MappingKind.UNSUPPORTED and self.source_columns:
-            return self
         return self
 
 
@@ -150,7 +148,7 @@ class MigrationPlan(DomainModel):
     target_database: TargetDatabase
     target_schema: TargetSchema
     mappings: list[ColumnMapping] = Field(default_factory=list)
-    load_strategy: str = "full"
+    load_strategy: LoadStrategy = LoadStrategy.FULL
     validation: ValidationPlan = Field(default_factory=ValidationPlan)
     metadata: MigrationMetadata = Field(default_factory=MigrationMetadata)
 

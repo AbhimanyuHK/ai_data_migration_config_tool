@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/AbhimanyuHK/ai_data_migration_config_tool/config/schema.json",
+  "title": "AI Data Migration Configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["migration", "tables"],
+  "properties": {
+    "migration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "source", "target"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "source": {"$ref": "#/$defs/database"},
+        "target": {"$ref": "#/$defs/database"},
+        "strategy": {"enum": ["full", "incremental", "cdc"]},
+        "execution_mode": {"enum": ["dry-run", "execute"]},
+        "watermark": {"$ref": "#/$defs/watermark"},
+        "cdc": {"$ref": "#/$defs/cdc"},
+        "batch_size": {"type": "integer", "minimum": 1},
+        "merge_keys": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "tables": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/table"}},
+    "validation": {"$ref": "#/$defs/validation"},
+    "guardrails": {"$ref": "#/$defs/guardrails"},
+    "execution": {"$ref": "#/$defs/execution"},
+    "artifacts": {"$ref": "#/$defs/artifacts"}
+  },
+  "$defs": {
+    "database": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "connection", "database", "schema"],
+      "properties": {
+        "type": {"enum": ["sybase", "snowflake", "postgresql", "oracle", "redshift"]},
+        "connection": {"type": "string", "minLength": 1},
+        "database": {"type": "string", "minLength": 1},
+        "schema": {"type": "string", "minLength": 1}
+      }
+    },
+    "column": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "target", "type"],
+      "properties": {
+        "source": {"type": "string", "minLength": 1},
+        "target": {"type": "string", "minLength": 1},
+        "type": {"type": "string", "minLength": 1},
+        "nullable": {"type": "boolean"},
+        "default": {"type": ["string", "null"]},
+        "precision": {"type": "integer", "minimum": 1},
+        "scale": {"type": "integer", "minimum": 0},
+        "transformation": {"type": ["string", "null"]},
+        "kind": {"enum": ["direct", "renamed", "transformed", "derived", "default", "null", "unsupported"]}
+      }
+    },
+    "table": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "target", "columns"],
+      "properties": {
+        "source": {"type": "string", "minLength": 1},
+        "target": {"type": "string", "minLength": 1},
+        "primary_key": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "columns": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/column"}}
+      }
+    },
+    "watermark": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["column"],
+      "properties": {"column": {"type": "string", "minLength": 1}, "data_type": {"type": ["string", "null"]}}
+    },
+    "cdc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mechanism"],
+      "properties": {"mechanism": {"type": "string", "minLength": 1}, "settings": {"type": "object", "additionalProperties": {"type": "string"}}}
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "row_count": {"type": "boolean"}, "primary_key": {"type": "boolean"}, "null_check": {"type": "boolean"},
+        "duplicate_check": {"type": "boolean"}, "schema_check": {"type": "boolean"},
+        "custom_queries": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "guardrails": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "allow_drop": {"type": "boolean"}, "allow_truncate": {"type": "boolean"}, "allow_delete": {"type": "boolean"},
+        "allow_update": {"type": "boolean"}, "allow_alter": {"type": "boolean"}, "require_approval_for_ddl": {"type": "boolean"},
+        "approval_required": {"type": "boolean"}, "risk_threshold": {"enum": ["low", "medium", "high", "critical"]},
+        "allowed_objects": {"type": "array", "items": {"type": "string"}}, "denied_objects": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {"enum": ["dry-run", "execute"]}, "require_human_approval": {"type": "boolean"},
+        "retry_count": {"type": "integer", "minimum": 0}, "batch_size": {"type": ["integer", "null"], "minimum": 1}
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["output_dir"],
+      "properties": {"output_dir": {"type": "string", "minLength": 1}}
+    }
+  }
+}

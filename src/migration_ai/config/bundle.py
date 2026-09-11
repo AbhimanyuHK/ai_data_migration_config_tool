@@ -10,6 +10,7 @@ import yaml
 
 from .env import interpolate_env
 from .loader import load_config
+from .models import MigrationFileConfig
 from .overrides import MappingFile, PolicyFile
 
 
@@ -19,8 +20,9 @@ def _load_mapping(path: str | Path) -> dict[str, Any]:
         raise ValueError("configuration file must use .yaml, .yml, or .json")
     if not file_path.is_file():
         raise FileNotFoundError(file_path)
+    text = file_path.read_text(encoding="utf-8")
     try:
-        raw = json.loads(file_path.read_text(encoding="utf-8")) if file_path.suffix.lower() == ".json" else yaml.safe_load(file_path.read_text(encoding="utf-8"))
+        raw = json.loads(text) if file_path.suffix.lower() == ".json" else yaml.safe_load(text)
     except (json.JSONDecodeError, yaml.YAMLError) as exc:
         raise ValueError(f"invalid configuration syntax in {file_path}: {exc}") from exc
     if not isinstance(raw, dict):
@@ -40,7 +42,7 @@ def load_bundle(
     migration_path: str | Path,
     mappings_path: str | Path | None = None,
     policies_path: str | Path | None = None,
-) -> tuple[Any, MappingFile | None, PolicyFile | None]:
+) -> tuple[MigrationFileConfig, MappingFile | None, PolicyFile | None]:
     """Load migration config plus optional external mappings and policies."""
     migration = load_config(migration_path)
     mappings = load_mappings(mappings_path) if mappings_path else None

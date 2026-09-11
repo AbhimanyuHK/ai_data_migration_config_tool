@@ -16,7 +16,6 @@ from migration_ai.domain import (
     TargetDatabase,
     TargetSchema,
     TargetTable,
-    TransformationRule,
 )
 
 

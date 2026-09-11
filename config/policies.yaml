@@ -1,0 +1,15 @@
+# Optional policy overrides. Keep credentials outside configuration files.
+defaults:
+  approval_required: true
+  require_approval_for_ddl: true
+  allow_drop: false
+  allow_truncate: false
+  allow_delete: false
+  allow_update: true
+  allow_alter: true
+  risk_threshold: medium
+
+migrations:
+  sybase-to-snowflake:
+    risk_threshold: high
+    approval_required: true

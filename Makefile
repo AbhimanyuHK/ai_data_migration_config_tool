@@ -1,4 +1,4 @@
-.PHONY: install test lint format typecheck quality security build clean
+.PHONY: install test lint format format-check typecheck quality security build clean
 
 install:
 	python -m pip install --upgrade pip
@@ -29,4 +29,4 @@ build:
 	python -m twine check dist/*
 
 clean:
-	python -c "import shutil; from pathlib import Path; [shutil.rmtree(p, ignore_errors=True) for p in ['build', 'dist', '.pytest_cache', '.mypy_cache', '.ruff_cache']]; [p.unlink() for p in Path('.').glob('*.egg-info') if p.is_dir()]"
+	python -c "import shutil; from pathlib import Path; [shutil.rmtree(p, ignore_errors=True) for p in ['build', 'dist', '.pytest_cache', '.mypy_cache', '.ruff_cache']]; [shutil.rmtree(p, ignore_errors=True) for p in Path('.').glob('*.egg-info') if p.is_dir()]"

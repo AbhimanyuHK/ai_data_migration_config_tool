@@ -42,19 +42,22 @@ class ColumnConfig(ConfigModel):
     source: str = Field(min_length=1)
     target: str = Field(min_length=1)
     type: str = Field(min_length=1)
+    source_type: str | None = None
     nullable: bool | None = None
     default: str | None = None
     precision: int | None = Field(default=None, ge=1)
     scale: int | None = Field(default=None, ge=0)
     transformation: str | None = None
-    kind: str = "direct"
+    kind: str | None = None
 
     @model_validator(mode="after")
-    def validate_precision_scale(self) -> ColumnConfig:
+    def validate_column(self) -> ColumnConfig:
         if self.scale is not None and self.precision is None:
             raise ValueError("scale requires precision")
         if self.precision is not None and self.scale is not None and self.scale > self.precision:
             raise ValueError("scale cannot exceed precision")
+        if self.kind == "transformed" and not self.transformation:
+            raise ValueError("transformed mapping requires a transformation expression")
         return self
 
 
@@ -176,7 +179,9 @@ class MigrationFileConfig(ConfigModel):
     def validate_cross_section_settings(self) -> MigrationFileConfig:
         if self.execution.mode != self.migration.execution_mode:
             raise ValueError("migration.execution_mode and execution.mode must match")
-        if self.migration.strategy == LoadStrategy.INCREMENTAL and not any(self.migration.watermark.column == c.source for t in self.tables for c in t.columns):
+        if self.migration.strategy == LoadStrategy.INCREMENTAL and not any(
+            self.migration.watermark.column == c.source for t in self.tables for c in t.columns
+        ):
             raise ValueError("watermark column must exist in configured source columns")
         return self
 

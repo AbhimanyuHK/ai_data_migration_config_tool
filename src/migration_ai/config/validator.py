@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from uuid import uuid5, NAMESPACE_URL
+from uuid import NAMESPACE_URL, uuid5
 
 from migration_ai.domain.enums import MappingKind, RiskLevel
 from migration_ai.domain.models import (
@@ -40,7 +40,7 @@ def config_to_plan(config: MigrationFileConfig) -> MigrationPlan:
         source_columns = [
             SourceColumn(
                 name=column.source,
-                data_type=column.type,
+                data_type=column.source_type or column.type,
                 nullable=True if column.nullable is None else column.nullable,
                 default=column.default,
                 precision=column.precision,
@@ -61,9 +61,7 @@ def config_to_plan(config: MigrationFileConfig) -> MigrationPlan:
             )
             for column in table.columns
         ]
-        source_tables.append(
-            SourceTable(name=table.source, columns=source_columns, primary_key=table.primary_key)
-        )
+        source_tables.append(SourceTable(name=table.source, columns=source_columns, primary_key=table.primary_key))
         target_tables.append(
             TargetTable(
                 name=table.target,
@@ -72,7 +70,14 @@ def config_to_plan(config: MigrationFileConfig) -> MigrationPlan:
             )
         )
         for column in table.columns:
-            kind = MappingKind(column.kind.lower())
+            if column.kind:
+                kind = MappingKind(column.kind.lower())
+            elif column.transformation:
+                kind = MappingKind.TRANSFORMED
+            elif column.source != column.target:
+                kind = MappingKind.RENAMED
+            else:
+                kind = MappingKind.DIRECT
             transformation = (
                 TransformationRule(expression=column.transformation)
                 if column.transformation
@@ -89,12 +94,10 @@ def config_to_plan(config: MigrationFileConfig) -> MigrationPlan:
             )
 
     migration_id = str(uuid5(NAMESPACE_URL, f"migration-ai:{config.migration.name}"))
-    risk = RiskLevel(config.guardrails.risk_threshold.upper())
+    risk = RiskLevel(config.guardrails.risk_threshold)
     metadata = MigrationMetadata(
         risk_level=risk,
-        approval_status=(
-            "PENDING" if config.execution.require_human_approval else "NOT_REQUIRED"
-        ),
+        approval_status="pending" if config.execution.require_human_approval else "not_required",
     )
 
     return MigrationPlan(

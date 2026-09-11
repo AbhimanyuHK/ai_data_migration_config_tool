@@ -1,6 +1,13 @@
 """Database-neutral migration domain models."""
 
-from .enums import ApprovalStatus, ConstraintType, LoadStrategy, MappingKind, MigrationStatus, RiskLevel
+from .enums import (
+    ApprovalStatus,
+    ConstraintType,
+    LoadStrategy,
+    MappingKind,
+    MigrationStatus,
+    RiskLevel,
+)
 from .models import (
     ColumnMapping,
     ForeignKey,

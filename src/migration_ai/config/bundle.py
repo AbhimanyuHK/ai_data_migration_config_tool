@@ -26,7 +26,7 @@ def _load_mapping(path: str | Path) -> dict[str, Any]:
     except (json.JSONDecodeError, yaml.YAMLError) as exc:
         raise ValueError(f"invalid configuration syntax in {file_path}: {exc}") from exc
     if not isinstance(raw, dict):
-        raise ValueError(f"configuration root must be an object/mapping: {file_path}")
+        raise TypeError(f"configuration root must be an object/mapping: {file_path}")
     return interpolate_env(raw)
 
 

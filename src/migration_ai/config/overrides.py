@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class MappingOverride(BaseModel):
@@ -33,6 +33,16 @@ class PolicyOverride(BaseModel):
     allow_update: bool | None = None
     allow_alter: bool | None = None
     risk_threshold: str | None = None
+
+    @field_validator("risk_threshold")
+    @classmethod
+    def validate_risk_threshold(cls, value: str | None) -> str | None:
+        if value is None:
+            return value
+        normalized = value.lower()
+        if normalized not in {"low", "medium", "high", "critical"}:
+            raise ValueError("risk_threshold must be low, medium, high, or critical")
+        return normalized
 
 
 class PolicyFile(BaseModel):

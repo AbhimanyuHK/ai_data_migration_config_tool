@@ -21,6 +21,9 @@ dev = [
   "pytest-cov>=5,<7",
   "ruff>=0.6,<1",
   "mypy>=1.11,<2",
+  "build>=1.2,<2",
+  "twine>=5,<7",
+  "pip-audit>=2.7,<3",
 ]
 
 [project.scripts]
@@ -35,7 +38,6 @@ testpaths = ["tests"]
 
 [tool.ruff]
 line-length = 100
-
 target-version = "py311"
 
 [tool.mypy]

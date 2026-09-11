@@ -173,7 +173,9 @@ class MigrationFileConfig(ConfigModel):
     validation: ValidationConfig = Field(default_factory=ValidationConfig)
     guardrails: GuardrailsConfig = Field(default_factory=GuardrailsConfig)
     execution: ExecutionConfig = Field(default_factory=ExecutionConfig)
-    artifacts: ArtifactsConfig = Field(default_factory=lambda: ArtifactsConfig(output_dir="migrations/output"))
+    artifacts: ArtifactsConfig = Field(
+        default_factory=lambda: ArtifactsConfig(output_dir="migrations/output")
+    )
 
     @model_validator(mode="after")
     def validate_cross_section_settings(self) -> MigrationFileConfig:

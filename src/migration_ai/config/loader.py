@@ -30,7 +30,7 @@ def load_raw_config(path: str | Path) -> dict[str, Any]:
         raise ValueError(f"invalid configuration syntax in {config_path}: {exc}") from exc
 
     if not isinstance(data, dict):
-        raise ValueError("configuration root must be an object/mapping")
+        raise TypeError("configuration root must be an object/mapping")
     data = interpolate_env(data)
     reject_secret_fields(data)
     return data

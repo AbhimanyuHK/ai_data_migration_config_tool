@@ -61,12 +61,17 @@ def config_to_plan(config: MigrationFileConfig) -> MigrationPlan:
             )
             for column in table.columns
         ]
-        source_tables.append(SourceTable(name=table.source, columns=source_columns, primary_key=table.primary_key))
+        source_tables.append(
+            SourceTable(name=table.source, columns=source_columns, primary_key=table.primary_key)
+        )
         target_tables.append(
             TargetTable(
                 name=table.target,
                 columns=target_columns,
-                primary_key=[next(c.target for c in table.columns if c.source == key) for key in table.primary_key],
+                primary_key=[
+                    next(c.target for c in table.columns if c.source == key)
+                    for key in table.primary_key
+                ],
             )
         )
         for column in table.columns:

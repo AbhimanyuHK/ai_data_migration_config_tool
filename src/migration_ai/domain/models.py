@@ -4,7 +4,14 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from .enums import ApprovalStatus, ConstraintType, LoadStrategy, MappingKind, MigrationStatus, RiskLevel
+from .enums import (
+    ApprovalStatus,
+    ConstraintType,
+    LoadStrategy,
+    MappingKind,
+    MigrationStatus,
+    RiskLevel,
+)
 
 
 class DomainModel(BaseModel):
@@ -113,7 +120,10 @@ class ColumnMapping(DomainModel):
 
     @model_validator(mode="after")
     def validate_mapping(self) -> ColumnMapping:
-        if self.kind in {MappingKind.DIRECT, MappingKind.RENAMED, MappingKind.TRANSFORMED} and not self.source_columns:
+        if (
+            self.kind in {MappingKind.DIRECT, MappingKind.RENAMED, MappingKind.TRANSFORMED}
+            and not self.source_columns
+        ):
             raise ValueError(f"{self.kind} mapping requires at least one source column")
         if self.kind == MappingKind.TRANSFORMED and self.transformation is None:
             raise ValueError("transformed mapping requires a transformation rule")

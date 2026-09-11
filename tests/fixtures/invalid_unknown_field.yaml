@@ -1,0 +1,25 @@
+migration:
+  name: invalid
+  source:
+    type: sybase
+    connection: SOURCE
+    database: DB
+    schema: dbo
+  target:
+    type: snowflake
+    connection: TARGET
+    database: DB
+    schema: PUBLIC
+  execution_mode: dry-run
+  unknown_field: true
+
+tables:
+  - source: T
+    target: T
+    columns:
+      - source: ID
+        target: ID
+        type: NUMBER
+
+execution:
+  mode: dry-run

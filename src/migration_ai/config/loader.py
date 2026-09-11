@@ -8,6 +8,7 @@ from typing import Any
 
 import yaml
 
+from .env import interpolate_env
 from .models import MigrationFileConfig, reject_secret_fields
 
 
@@ -15,7 +16,7 @@ SUPPORTED_SUFFIXES = {".yaml", ".yml", ".json"}
 
 
 def load_raw_config(path: str | Path) -> dict[str, Any]:
-    """Load YAML or JSON and return the raw mapping after basic safety checks."""
+    """Load YAML or JSON, interpolate environment references, then safety-check."""
     config_path = Path(path)
     if config_path.suffix.lower() not in SUPPORTED_SUFFIXES:
         raise ValueError("configuration file must use .yaml, .yml, or .json")
@@ -30,6 +31,7 @@ def load_raw_config(path: str | Path) -> dict[str, Any]:
 
     if not isinstance(data, dict):
         raise ValueError("configuration root must be an object/mapping")
+    data = interpolate_env(data)
     reject_secret_fields(data)
     return data
 

@@ -40,13 +40,19 @@ def make_plan(strategy: LoadStrategy = LoadStrategy.FULL) -> MigrationPlan:
     return MigrationPlan(
         migration_id="customer-v1",
         name="sybase_to_snowflake_customer",
-        source_database=SourceDatabase(type="sybase", connection="SYBASE_SOURCE", database="LEGACY_DB"),
+        source_database=SourceDatabase(
+            type="sybase", connection="SYBASE_SOURCE", database="LEGACY_DB"
+        ),
         source_schema=SourceSchema(name="dbo", tables=[source_table]),
-        target_database=TargetDatabase(type="snowflake", connection="SNOWFLAKE_TARGET", database="ANALYTICS"),
+        target_database=TargetDatabase(
+            type="snowflake", connection="SNOWFLAKE_TARGET", database="ANALYTICS"
+        ),
         target_schema=TargetSchema(name="CUSTOMER", tables=[target_table]),
         mappings=[
             ColumnMapping(source_columns=["CUSTOMER_ID"], target_column="CUSTOMER_ID"),
-            ColumnMapping(source_columns=["NAME"], target_column="CUSTOMER_NAME", kind=MappingKind.RENAMED),
+            ColumnMapping(
+                source_columns=["NAME"], target_column="CUSTOMER_NAME", kind=MappingKind.RENAMED
+            ),
         ],
         load_strategy=strategy,
     )

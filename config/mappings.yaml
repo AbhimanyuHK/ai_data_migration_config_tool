@@ -1,0 +1,15 @@
+# Optional external mapping overrides. The migration file remains the primary contract.
+defaults:
+  - source: dbo.customer_id
+    target: customer_id
+    kind: direct
+  - source: dbo.created_at
+    target: created_at
+    kind: renamed
+
+migrations:
+  sybase-to-snowflake:
+    - source: dbo.customer_status
+      target: customer_status
+      kind: transformed
+      transformation: "CASE WHEN customer_status = 'A' THEN 'ACTIVE' ELSE 'INACTIVE' END"

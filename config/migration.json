@@ -1,0 +1,62 @@
+{
+  "migration": {
+    "name": "sybase_to_snowflake_customer",
+    "source": {
+      "type": "sybase",
+      "connection": "SYBASE_SOURCE",
+      "database": "LEGACY_DB",
+      "schema": "dbo"
+    },
+    "target": {
+      "type": "snowflake",
+      "connection": "SNOWFLAKE_TARGET",
+      "database": "ANALYTICS",
+      "schema": "CUSTOMER"
+    },
+    "strategy": "incremental",
+    "execution_mode": "dry-run",
+    "watermark": {
+      "column": "LAST_UPDATED_DT",
+      "data_type": "datetime"
+    }
+  },
+  "tables": [
+    {
+      "source": "CUSTOMER",
+      "target": "CUSTOMER",
+      "primary_key": ["CUSTOMER_ID"],
+      "columns": [
+        {"source": "CUSTOMER_ID", "target": "CUSTOMER_ID", "type": "NUMBER", "nullable": false},
+        {"source": "CUSTOMER_NAME", "target": "CUSTOMER_NAME", "type": "VARCHAR"},
+        {"source": "CREATED_DT", "target": "CREATED_AT", "type": "TIMESTAMP_NTZ"},
+        {"source": "CUSTOMER_STATUS", "target": "CUSTOMER_STATUS", "type": "VARCHAR", "transformation": "UPPER(CUSTOMER_STATUS)", "kind": "transformed"},
+        {"source": "LAST_UPDATED_DT", "target": "LAST_UPDATED_AT", "type": "TIMESTAMP_NTZ", "nullable": false}
+      ]
+    }
+  ],
+  "validation": {
+    "row_count": true,
+    "primary_key": true,
+    "null_check": true,
+    "duplicate_check": true,
+    "schema_check": true
+  },
+  "guardrails": {
+    "allow_drop": false,
+    "allow_truncate": false,
+    "allow_delete": false,
+    "allow_update": true,
+    "allow_alter": true,
+    "require_approval_for_ddl": true,
+    "approval_required": true,
+    "risk_threshold": "medium"
+  },
+  "execution": {
+    "mode": "dry-run",
+    "require_human_approval": true,
+    "retry_count": 1
+  },
+  "artifacts": {
+    "output_dir": "migrations/output"
+  }
+}
